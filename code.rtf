@@ -1,0 +1,119 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2636
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;\f1\fnil\fcharset0 Menlo-Bold;}
+{\colortbl;\red255\green255\blue255;\red157\green0\blue210;\red255\green255\blue254;\red0\green0\blue0;
+\red15\green112\blue1;\red144\green1\blue18;\red0\green0\blue255;\red101\green76\blue29;\red0\green0\blue109;
+\red19\green120\blue72;\red32\green108\blue135;}
+{\*\expandedcolortbl;;\cssrgb\c68627\c0\c85882;\cssrgb\c100000\c100000\c99608;\cssrgb\c0\c0\c0;
+\cssrgb\c0\c50196\c0;\cssrgb\c63922\c8235\c8235;\cssrgb\c0\c0\c100000;\cssrgb\c47451\c36863\c14902;\cssrgb\c0\c6275\c50196;
+\cssrgb\c3529\c53333\c35294;\cssrgb\c14902\c49804\c60000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+from\cf0 \cb3 \'a0flask\'a0\cf2 \cb3 import\cf0 \cb3 \'a0Flask,\'a0render_template,\'a0request\cb1 \
+\cf2 \cb3 from\cf0 \cb3 \'a0flask_ngrok\'a0\cf2 \cb3 import\cf0 \cb3 \'a0run_with_ngrok\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf0 \cb3 app\'a0=\'a0Flask(__name__)\cb1 \
+\cb3 run_with_ngrok(app)\'a0\'a0\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 import\cf0 \cb3 \'a0face_recognition\cb1 \
+\cf2 \cb3 from\cf0 \cb3 \'a0google.colab.patches\'a0\cf2 \cb3 import\cf0 \cb3 \'a0cv2_imshow\cb1 \
+\cf2 \cb3 import\cf0 \cb3 \'a0cv2\cb1 \
+\cf2 \cb3 from\cf0 \cb3 \'a0google.colab\'a0\cf2 \cb3 import\cf0 \cb3 \'a0files\cb1 \
+\cf2 \cb3 import\cf0 \cb3 \'a0csv\cb1 \
+\cf2 \cb3 import\cf0 \cb3 \'a0cv2\'a0\cb1 \
+\cf2 \cb3 import\cf0 \cb3 \'a0os\cb1 \
+\cf2 \cb3 import\cf0 \cb3 \'a0datetime\cb1 \
+\cf2 \cb3 import\cf0 \cb3 \'a0numpy\'a0\cf2 \cb3 as\cf0 \cb3 \'a0np\cb1 \
+\cf2 \cb3 import\cf0 \cb3 \'a0pandas\'a0\cf2 \cb3 as\cf0 \cb3 \'a0pd\cb1 \
+\cf2 \cb3 from\cf0 \cb3 \'a0imutils\'a0\cf2 \cb3 import\cf0 \cb3 \'a0paths\cb1 \
+\cf2 \cb3 from\cf0 \cb3 \'a0datetime\'a0\cf2 \cb3 import\cf0 \cb3 \'a0datetime  #You didn't import datetime library that's why attendance marking is not working after that it will works.\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 #\'a0You\'a0should\'a0use\'a0datetime\'a0object,\'a0not\'a0str.\cf0 \cb1 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 \cb3 training_pictures_encodings\'a0=\'a0[]\cb1 \
+\cb3 training_pictures_names\'a0=\'a0[]\cb1 \
+\cb3 training_pictures_dir\'a0=\'a0\cf6 \cb3 'training_pictures'\cf0 \cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 #This\'a0function\'a0helps\'a0to\'a0resize\'a0all\'a0image\'a0of\'a0same\'a0size\cf0 \cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 def\cf0 \'a0\cf8 \cb3 read_img\cf0 \cb3 (\cf9 \cb3 path\cf0 \cb3 ):\cb1 \
+\cb3 \'a0\'a0img=cv2.imread(path)\cb1 \
+\cb3 \'a0\'a0(h,\'a0w)\'a0=\'a0img.shape[:\cf10 \cb3 2\cf0 \cb3 ]\cb1 \
+\cb3 \'a0\'a0width\'a0=\'a0\cf10 \cb3 500\cf0 \cb1 \
+\cb3 \'a0\'a0ratio\'a0=\'a0width/\'a0\cf11 \cb3 float\cf0 \cb3 (w)\cb1 \
+\cb3 \'a0\'a0height\'a0=\'a0\cf11 \cb3 int\cf0 \cb3 (h\'a0*\'a0ratio)\cb1 \
+\cb3 \'a0\'a0\cf2 \cb3 return\cf0 \cb3 \'a0cv2.resize(img,\'a0(width,\'a0height))\cb1 \
+\cb3 \'a0\'a0\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 for\cf0 \cb3 \'a0training_pictures1\'a0\cf7 in\cf0 \'a0\cf8 \cb3 sorted\cf0 \cb3 (\cf11 \cb3 list\cf0 \cb3 (paths.list_images(\cf6 \cb3 '/content/training_pictures/'\cf0 \cb3 ))):\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf0 \cb3 \'a0\'a0img=read_img(training_pictures1)\cb1 \
+\cb3 \'a0\'a0img_enc\'a0=\'a0face_recognition.face_encodings(img)[\cf10 \cb3 0\cf0 \cb3 ]\cb1 \
+\cb3 \'a0\'a0training_pictures_encodings.append(img_enc)\cb1 \
+\cb3 \'a0\'a0training_pictures_names.append(training_pictures1.split(\cf6 \cb3 '.'\cf0 \cb3 )[\cf10 \cb3 0\cf0 \cb3 ])\cb1 \
+\
+\
+\cf7 \cb3 def\cf0 \'a0\cf8 \cb3 classify\cf0 \cb3 (\cf9 \cb3 file_name\cf0 \cb3 ):\cb1 \
+\cb3 \'a0\'a0unknown_image\'a0=\'a0cv2.imread(file_name)\cb1 \
+\cb3 \'a0\'a0unknown_image_to_draw\'a0=\'a0cv2.imread(file_name)\cb1 \
+\cb3 \'a0\'a0face_locations\'a0=\'a0face_recognition.face_locations(unknown_image)\cb1 \
+\cb3 \'a0\'a0face_encodings\'a0=\'a0face_recognition.face_encodings(unknown_image,\'a0face_locations)\cb1 \
+\cb3 \'a0\'a0\cf2 \cb3 for\cf0 \cb3 \'a0(top,\'a0right,\'a0bottom,\'a0left),\'a0face_encoding\'a0\cf7 in\cf0 \'a0\cf8 \cb3 zip\cf0 \cb3 (face_locations,\'a0face_encodings):\cb1 \
+\cb3 \'a0\'a0\'a0\'a0matches\'a0=\'a0face_recognition.compare_faces(training_pictures_encodings,\'a0face_encoding)\cb1 \
+\cb3 \'a0\'a0\'a0\'a0name\'a0=\'a0\cf6 \cb3 "Unknown"\cf0 \cb1 \
+\cb3 \'a0\'a0\'a0\'a0face_distances\'a0=\'a0face_recognition.face_distance(training_pictures_encodings,\'a0face_encoding)\cb1 \
+\cb3 \'a0\'a0\'a0\'a0best_match_index\'a0=\'a0np.argmin(face_distances)\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\cf2 \cb3 if\cf0 \cb3 \'a0matches[best_match_index]:\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0name\'a0=\'a0training_pictures_names[best_match_index]\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0
+\f1\b \cb3 \'a0\cf2 return\cf0 \'a0name.split(\cf6 '/'\cf0 )[\cf10 -1\cf0 ]  #This is the line which is changed
+\f0\b0 \cb1 \
+\cb3 \'a0\'a0\'a0\'a0\cf2 \cb3 else\cf0 \cb3 :\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\cf2 \cb3 return\cf0 \cb3 \'a0\cf6 \cb3 'Not\'a0Found'\cf0 \cb1 \
+\
+\
+\cf7 \cb3 def\cf0 \'a0\cf8 \cb3 makeAttendanceEntry\cf0 \cb3 (\cf9 \cb3 name\cf0 \cb3 ):\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\cf2 \cb3 with\cf0 \cb3 \'a0\cf8 \cb3 open\cf0 \cb3 (\cf6 \cb3 'attendance_list.csv'\cf0 \cb3 ,\cf6 \cb3 'r+'\cf0 \cb3 )\'a0\cf2 \cb3 as\cf0 \cb3 \'a0FILE:\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0allLines\'a0=\'a0FILE.readlines()\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0attendanceList\'a0=\'a0[]\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\cf2 \cb3 for\cf0 \cb3 \'a0line\'a0\cf7 in\cf0 \'a0allLines:\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0entry\'a0=\'a0line.split(\cf6 \cb3 ','\cf0 \cb3 )\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0attendanceList.append(entry[\cf10 \cb3 0\cf0 \cb3 ])\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\cf2 \cb3 if\cf0 \cb3 \'a0name\'a0\cf7 not\cf0 \'a0\cf7 in\cf0 \'a0attendanceList:\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0now\'a0=\'a0datetime.now()\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0dtString\'a0=\'a0now.strftime(\cf6 \cb3 '%d/%b/%Y,\'a0%H:%M:%S'\cf0 \cb3 )\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0FILE.writelines(\cf7 f\cf6 \cb3 '\\n\cf0 \cb3 \{name\}\cf6 \cb3 ,\cf0 \cb3 \{dtString\}\cf6 \cb3 '\cf0 \cb3 )\cb1 \
+\
+\
+\cf7 \cb3 def\cf0 \'a0\cf8 \cb3 predict_label\cf0 \cb3 (\cf9 \cb3 img_path\cf0 \cb3 ):\cb1 \
+\cb3 \'a0\'a0p=classify(img_path)\cb1 \
+\cb3 \'a0\'a0makeAttendanceEntry(p)\cb1 \
+\cb3 \'a0\'a0\cf2 \cb3 return\cf0 \cb3 \'a0p\cb1 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 @app.route\cf0 \cb3 (\cf6 \cb3 "/"\cf0 \cb3 ,\'a0methods=[\cf6 \cb3 'GET'\cf0 \cb3 ,\'a0\cf6 \cb3 'POST'\cf0 \cb3 ])\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 def\cf0 \'a0\cf8 \cb3 main\cf0 \cb3 ():\cb1 \
+\cb3 \'a0\'a0\cf2 \cb3 return\cf0 \cb3 \'a0render_template(\cf6 \cb3 "index.html"\cf0 \cb3 )\cb1 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 @app.route\cf0 \cb3 (\cf6 \cb3 "/submit"\cf0 \cb3 ,\'a0methods\'a0=\'a0[\cf6 \cb3 'GET'\cf0 \cb3 ,\'a0\cf6 \cb3 'POST'\cf0 \cb3 ])\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 def\cf0 \'a0\cf8 \cb3 get_output\cf0 \cb3 ():\cb1 \
+\cb3 \'a0\'a0\cf2 \cb3 if\cf0 \cb3 \'a0request.method\'a0==\'a0\cf6 \cb3 'POST'\cf0 \cb3 :\cb1 \
+\cb3 \'a0\'a0\'a0\'a0img\'a0=\'a0request.files[\cf6 \cb3 'my_image'\cf0 \cb3 ]\cb1 \
+\cb3 \'a0\'a0\'a0\'a0img_path\'a0=\'a0\cf6 \cb3 "static/"\cf0 \cb3 \'a0+\'a0img.filename\'a0\cb1 \
+\cb3 \'a0\'a0\'a0\'a0img.save(img_path)\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\cf8 \cb3 print\cf0 \cb3 (img_path)\cb1 \
+\cb3 \'a0\'a0\'a0\'a0p\'a0=\'a0predict_label(img_path)\cb1 \
+\cb3 \'a0\'a0\'a0\'a0\cf2 \cb3 return\cf0 \cb3 \'a0render_template(\cf6 \cb3 "index.html"\cf0 \cb3 ,\'a0prediction\'a0=\'a0p,\'a0img_path\'a0=\'a0img_path)\cb1 \
+\cb3 app.run()}
